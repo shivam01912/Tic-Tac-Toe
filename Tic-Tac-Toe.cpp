@@ -117,7 +117,7 @@ public:
     int availability(){
         if(filled==9){
             printing();
-            cout<<"\n\nTumse Bilkul Na Ho Paega...!!";
+            cout<<"\n\nGame Over...!!";
             return 1;
         }
         else{
@@ -159,7 +159,7 @@ public:
                 cout<<"------------------------Legend Mode-------------------------------\n"<<endl;
                 break;
             case 4:
-                cout<<"------------------------God Mode-------------------------------\n------------------------Tumse Na Ho Paega-------------------------------\n"<<endl;
+                cout<<"------------------------God Mode-------------------------------\n"<<endl;
                 break;
         }
         for(int i=0;i<9;i++){
