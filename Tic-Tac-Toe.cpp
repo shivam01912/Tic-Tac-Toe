@@ -1,4 +1,5 @@
 #include<iostream>
+#include<stdlib.h>
 using namespace std;
 
 bool *painted = new bool[9];
@@ -7,6 +8,7 @@ int wincombo[8][3]={{0,1,2},{3,4,5},{6,7,8},{0,3,6},{1,4,7},{2,5,8},{0,4,8},{2,4
 int turn;
 int filled;
 int result;
+int choice;
 
 class Game{
 public:
@@ -18,6 +20,8 @@ public:
             painted[i]=false;
             content[i]=i+1;
         }
+        cout<<"Tic - Tac Toe\nEnter\n1 - Kid mode\n2 - Men mode\n3 - Legend mode\n4 - God mode"<<endl;
+        cin>>choice;
         update();
     }
 
@@ -27,9 +31,14 @@ public:
             printing();
             if(checkForWinner(content)==0){
                 if(turn%2!=0){
-                    cout<<"\n\n\n"<<"Please enter the number where you want to enter X"<<" : ";
+                    cout<<"\n\n\n"<<"Please enter the number (from 1-9) where you want to enter X"<<" : ";
                     cin>>ch;
-                    ch;
+                    if(!(ch>=1 || ch<=9)){
+                        cout<<"\nPlease enter a valid choice Press any key to TRY AGAIN and press enter : ";
+                        char trial;
+                        cin>>trial;
+                        continue;
+                    }
                 }
             }
             else {
@@ -41,16 +50,46 @@ public:
             if(turn%2!=0){
                 if(painted[ch-1]==true){
                     char trial;
-                    cout<<"\n\nTHAT SPACE IS ALREADY OCCUPIED...!!...Press any key to TRY AGAIN";
+                    cout<<"\n\nTHAT SPACE IS ALREADY OCCUPIED...!!...Press any key to TRY AGAIN and press enter : ";
                     cin>>trial;
                     continue;
                 }
             }
 
             if(turn%2==0){
-                int a=ai(content,painted);
-                painted[a]=true;
-                content[a]=79;
+                int aimove;
+                if(choice==1){
+                    int v = rand() % 100 + 1;
+                    if(v<50){
+                        aimove=random(painted);
+                    }
+                    else{
+                        aimove=ai(content,painted);
+                    }
+                }
+                else if(choice==2){
+                    int v = rand() % 100 + 1;
+                    if(v<30){
+                        aimove=random(painted);
+                    }
+                    else{
+                        aimove=ai(content,painted);
+                    }
+                }
+                else if(choice==3){
+                    int v = rand() % 100 + 1;
+                    if(v<20){
+                        aimove=random(painted);
+                    }
+                    else{
+                        aimove=ai(content,painted);
+                    }
+                }
+                else if(choice==4){
+                        aimove=ai(content,painted);
+                }
+                painted[aimove]=true;
+                content[aimove]=79;
                 turn++;
                 filled++;
             }
@@ -59,6 +98,13 @@ public:
                 content[ch-1]=88;
                 turn++;
                 filled++;
+            }
+
+            if(checkForWinner(content)!=0){
+                printing();
+                if(result==88){cout<<"\n\n"<<"X has WON...!!";}
+                else if(result==79){cout<<"\n\n"<<"O has WON...!!";}
+                break;
             }
 
             if(availability()){
@@ -71,7 +117,7 @@ public:
     int availability(){
         if(filled==9){
             printing();
-            cout<<"\n\nGAME OVER...!!";
+            cout<<"\n\nTumse Bilkul Na Ho Paega...!!";
             return 1;
         }
         else{
@@ -94,7 +140,7 @@ public:
 
     void playAgain(){
         char conf;
-        cout<<"Play Again ?y/n  :   ";
+        cout<<"\n\nWanna Play Again ?y/n  :   ";
         cin>>conf;
         if(conf=='y'){reload();}
         else{cout<<"BYE...!!";}
@@ -102,7 +148,20 @@ public:
 
     int printing(){
         system("cls");
-        cout<<"-------------------------------------------------------\n"<<endl;
+        switch(choice){
+            case 1:
+                cout<<"------------------------Kid Mode-------------------------------\n"<<endl;
+                break;
+            case 2:
+                cout<<"------------------------Men Mode-------------------------------\n"<<endl;
+                break;
+            case 3:
+                cout<<"------------------------Legend Mode-------------------------------\n"<<endl;
+                break;
+            case 4:
+                cout<<"------------------------God Mode-------------------------------\n------------------------Tumse Na Ho Paega-------------------------------\n"<<endl;
+                break;
+        }
         for(int i=0;i<9;i++){
             if(i==3||i==6){cout<<"\n\n";}
             if(content[i]==88)
@@ -167,6 +226,22 @@ public:
 
     	else if (best > 0)
     		return best - 1;
+    }
+
+    int random(bool paint[9]){
+        int c=0;
+        int val;
+        int i;
+        for(i=0;i<9;i++)
+            if(paint[i]==false)c++;
+
+        val=rand() % c + 1;
+        c=0;
+        for(i=0;i<9;i++){
+            if(paint[i]==false)c++;
+            if(c==val)break;
+        }
+        return i;
     }
 };
 
