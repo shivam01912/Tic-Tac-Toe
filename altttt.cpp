@@ -5,29 +5,21 @@ using namespace std;
 
 bool *painted = new bool[9];
 int *content = new int[9];
-int scores[8][10];
 int wincombo[8][3]={{0,1,2},{3,4,5},{6,7,8},{0,3,6},{1,4,7},{2,5,8},{0,4,8},{2,4,6}};
 int turn;
-char choice;
 int filled;
-int oMovesCount;
 int result;
-int optimi;
-int aiturn;
 
 class Game{
 public:
     void reload(){
         turn=1;
         filled=0;
-        oMovesCount=0;
-        result=1;
+        result=0;
         for(int i=0;i<9;i++){
             painted[i]=false;
             content[i]=i+1;
         }
-        //cout<<"Enter X or O : ";
-        //cin>>choice;
         update();
     }
 
@@ -35,15 +27,14 @@ public:
         int ch;
         while(1){
             printing();
-            cout<<"here i am"<<optimi-1<<"\n\n";
-            if(!checkForWinner()){
+            if(checkForWinner(content)==0){
                 if(turn%2!=0){
                     cout<<"\n\n\n"<<"Please enter the number where you want to enter X"<<" : ";
                     cin>>ch;
                     ch;
                 }
             }
-            else{
+            else {
                 if(result==88){cout<<"\n\n"<<"X has WON...!!";}
                 else if(result==79){cout<<"\n\n"<<"O has WON...!!";}
                 break;
@@ -52,26 +43,18 @@ public:
             if(turn%2!=0){
                 if(painted[ch-1]==true){
                     char trial;
-                    cout<<"\n\nTHAT SPACE IS ALREADY OCCUPIED WITH YOUR HEART!...Press any key to TRY AGAIN";
+                    cout<<"\n\nTHAT SPACE IS ALREADY OCCUPIED...!!...Press any key to TRY AGAIN";
                     cin>>trial;
                     continue;
                 }
             }
 
             if(turn%2==0){
-                for (int i = 0; i < 8; i++) {
-                    cout<<"LOOP 1"<<endl;
-                    for (int j = 0; j < 10; j++) {
-                        scores[i][j]=999;
-                    }
-                }
-                aiturn=0;
-                int a=ai();
-                painted[optimi]=true;
-                content[optimi]=79;
+                int a=ai(content,painted);
+                painted[a]=true;
+                content[a]=79;
                 turn++;
                 filled++;
-                oMovesCount++;
             }
             else{
                 painted[ch-1]=true;
@@ -89,7 +72,6 @@ public:
 
     int availability(){
         if(filled==9){
-            result=0;
             printing();
             cout<<"\n\nGAME OVER...!!";
             return 1;
@@ -99,22 +81,17 @@ public:
         }
     }
 
-    int checkForWinner(){
-        int sym;
+    int checkForWinner(int content[9]){
         result=0;
-        if(turn%2==0)sym=88;
-        else sym=79;
-
-        int flag=0;
         for(int a=0;a<8;a++){
             if(content[wincombo[a][0]]==88&&content[wincombo[a][1]]==88&&content[wincombo[a][2]]==88){
-                flag=1;result=88;
+                result=88;
             }
             if(content[wincombo[a][0]]==79&&content[wincombo[a][1]]==79&&content[wincombo[a][2]]==79){
-                flag=1;result=79;
+                result=79;
             }
         }
-        return flag;
+        return result;
     }
 
     void playAgain(){
@@ -139,103 +116,59 @@ public:
         }
     }
 
-    int score(){
-        if(result==88)
-            return (10-oMovesCount);
-        else if(result==79)
-            return (-10+oMovesCount);
-        else if(result==0){
-            return 0;
+    int ai(int mat[9],bool paint[9]){
+        int pc=79;
+        int pl=88;
+        int sc=0;
+        int best=-9999;
+        int optimi=0;
+
+        for(int i=0;i<9;i++){
+            if(paint[i]==false){
+                paint[i]=true;
+                mat[i]=pc;
+                sc=-(negmax(mat, paint, pl, pc));
+                paint[i]=false;
+                mat[i]=i+1;
+                if(sc>best){
+                    best=sc;
+                    optimi=i;
+                }
+            }
         }
+        return optimi;
     }
 
-    int ai(){
-        if(checkForWinner()){
-            aiturn--;
-            return score();
-        }
+    int negmax(int mat[9], bool paint[9],int pl1,int pl2){
+        int best = -9999;
+    	int sc = 0;
 
-        int flag=0;
-        int sc;
-        aiturn++;
-        for(int i=0;i<9;i++){
-            //scores[i]=-1;
-            if(painted[i]==false){
-                flag=1;
-                break;
-            }
-        }
-        cout<<"aiturn : "<<aiturn<<endl;
-        if(flag==0){
-            aiturn--;
-            return score();
-        }
-        else{
-            for(int i=0;i<9;i++){
-                if(painted[i]==false){
-                    if(aiturn%2!=0){
-                        painted[i]=true;
-                        content[i]=79;
-                        turn++;
-                        filled++;
-                        oMovesCount++;
+    	if (checkForWinner(mat) == pl1)
+    		return 1000;
+    	else if (checkForWinner(mat) == pl2)
+    		return -1000;
 
-                        sc=ai();
-                        //scores[i]=sc;
+    	for (int i = 0; i < 9; i++) {
+    		if (paint[i] == false) {
+                paint[i]=true;
+                mat[i] = pl1;
+    			sc = -(negmax(mat, paint, pl2, pl1));
+    			paint[i]=false;
+                mat[i]=i+1;
+    			if (sc >= best) {
+    				best= sc;
+    			}
+    		}
+    	}
 
-                        painted[i]=false;
-                        content[i]=i+1;
-                        turn--;
-                        filled--;
-                        oMovesCount--;
-                    }
-                    else{
-                        painted[i]=true;
-                        content[i]=88;
-                        turn++;
-                        filled++;
+    	if (best == -9999 || best == 0)
+    		return 0;
 
-                        sc=ai();
-                        //scores[i]=sc;
+    	else if (best < 0)
+    		return best + 1;
 
-                        painted[i]=false;
-                        content[i]=i+1;
-                        turn--;
-                        filled--;
-                    }
-                    scores[aiturn][i]=sc;
-                }
-                cout<<aiturn<<"  : "<<i<<" LOOP 2 "<<sc<<endl;
-
-            }
-            if (aiturn%2==0) {
-                int m=99;
-                for (int k = 0; k < 10; k++) {
-                    if(scores[aiturn][k]==99)continue;
-                    else{
-                        if(m>scores[aiturn][k]){m=scores[aiturn][k];optimi=k;scores[aiturn][k]=99;}
-                    }
-                    cout<<"LOOP 3"<<endl;
-                }
-                aiturn--;
-                cout<<"min/max : "<<m<<endl;
-                return m;
-            }
-            else{
-                int m=-99;
-                for (int k = 0; k < 10; k++) {
-                    if(scores[aiturn][k]==99)continue;
-                    else{
-                        if(m<scores[aiturn][k]){m=scores[aiturn][k];optimi=k;scores[aiturn][k]=99;}
-                    }
-                    cout<<"LOOP 4"<<endl;
-                }
-                aiturn--;
-                cout<<"min/max : "<<m<<endl;
-                return m;
-            }
-
-        }
+    	else if (best > 0)
+    		return best - 1;
     }
 };
 
