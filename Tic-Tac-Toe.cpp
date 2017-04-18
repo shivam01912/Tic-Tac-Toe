@@ -60,7 +60,7 @@ public:
                 int aimove;
                 if(choice==1){
                     int v = rand() % 100 + 1;
-                    if(v<50){
+                    if(v<70){
                         aimove=random(painted);
                     }
                     else{
@@ -69,7 +69,7 @@ public:
                 }
                 else if(choice==2){
                     int v = rand() % 100 + 1;
-                    if(v<30){
+                    if(v<50){
                         aimove=random(painted);
                     }
                     else{
@@ -78,7 +78,7 @@ public:
                 }
                 else if(choice==3){
                     int v = rand() % 100 + 1;
-                    if(v<20){
+                    if(v<30){
                         aimove=random(painted);
                     }
                     else{
